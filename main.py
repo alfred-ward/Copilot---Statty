@@ -29,3 +29,7 @@ from fastapi.responses import FileResponse
 @app.get("/")
 async def serve_frontend():
     return FileResponse("copilot_frontend.html")
+
+git add main.py
+git commit -m "Add root route to serve frontend"
+git push origin main
