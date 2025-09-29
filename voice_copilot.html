@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Voice Copilot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 2em;
+      background-color: #f4f4f4;
+    }
+    button {
+      padding: 1em 2em;
+      font-size: 1.2em;
+      margin: 1em;
+      cursor: pointer;
+    }
+    #response {
+      margin-top: 2em;
+      font-size: 1.2em;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎙️ Talk to Your Copilot</h1>
+  <button onclick="startListening()">🎤 Speak</button>
+  <div id="response"></div>
+
+  <script>
+    const responseDiv = document.getElementById("response");
+
+    function startListening() {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.start();
+
+      recognition.onresult = async (event) => {
+        const transcript = event.results[0][0].transcript;
+        responseDiv.innerHTML = `<strong>You said:</strong> ${transcript}<br><em>Thinking...</em>`;
+
+        try {
+          const res = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: transcript })
+          });
+          const data = await res.json();
+          const reply = data.response;
+          responseDiv.innerHTML = `<strong>You said:</strong> ${transcript}<br><strong>Copilot:</strong> ${reply}`;
+          speak(reply);
+        } catch (err) {
+          responseDiv.innerHTML = "❌ Error communicating with copilot.";
+          console.error(err);
+        }
+      };
+
+      recognition.onerror = (event) => {
+        responseDiv.innerHTML = "❌ Speech recognition error.";
+        console.error(event.error);
+      };
+    }
+
+    function speak(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      speechSynthesis.speak(utterance);
+    }
+  </script>
+</body>
+</html>
