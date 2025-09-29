@@ -23,3 +23,9 @@ async def chat(user_message: UserMessage):
     )
     reply = response['choices'][0]['message']['content']
     return {"response": reply}
+
+from fastapi.responses import FileResponse
+
+@app.get("/")
+async def serve_frontend():
+    return FileResponse("copilot_frontend.html")
