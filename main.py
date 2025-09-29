@@ -33,3 +33,9 @@ async def serve_frontend():
 git add main.py
 git commit -m "Add root route to serve frontend"
 git push origin main
+
+rom fastapi.responses import FileResponse
+
+@app.get("/")
+async def serve_voice_frontend():
+    return FileResponse("voice_copilot.html")
